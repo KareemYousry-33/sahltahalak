@@ -1,0 +1,16 @@
+{
+  "name": "SahltahaLak - Study Timer",
+  "short_name": "SahltahaLak",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050511",
+  "theme_color": "#00f2ff",
+  "description": "Your study companion for focus and dhikr.",
+  "icons": [
+    {
+      "src": "assets/img/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -12,6 +12,9 @@
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Outfit:wght@300;500;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00f2ff">
+    <link rel="apple-touch-icon" href="assets/img/icon.png">
 </head>
 
 <body>
@@ -76,7 +79,7 @@
         <main class="timer-section">
             <div class="timer-display">
                 <div class="timer-glow-effect"></div>
-                <svg class="progress-ring" width="300" height="300">
+                <svg class="progress-ring" width="300" height="300" viewBox="0 0 300 300">
                     <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="12"
                         fill="transparent" r="130" cx="150" cy="150" />
                     <circle class="progress-ring__circle" stroke="#4facfe" stroke-width="12" fill="transparent" r="130"
@@ -181,6 +184,13 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch((error) => console.log('Service Worker Registration Failed:', error));
+        }
+    </script>
 </body>
 
 </html>

@@ -1080,3 +1080,103 @@ body {
     transition: transform 0.5s ease;
     font-size: 1.1rem;
 }
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .main-title {
+        font-size: 2rem;
+    }
+
+    .glass-panel {
+        padding: 20px;
+    }
+
+    /* Timer resizing */
+    .timer-display {
+        width: 290px;
+        height: 290px;
+    }
+
+    .timer-glow-effect {
+        width: 220px;
+        height: 220px;
+    }
+
+    .progress-ring {
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        /* Slight padding to prevent stroke cutoff */
+    }
+
+    .time-text {
+        font-size: 3rem;
+    }
+
+    /* Controls adjustments */
+    .timer-controls {
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .control-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.4rem;
+    }
+
+    /* Settings grid */
+    .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .custom-input {
+        flex-direction: column;
+    }
+
+    /* Dhikr List */
+    .dhikr-item {
+        padding: 15px;
+        /* Larger touch target */
+    }
+
+    .dhikr-list-section {
+        max-height: 400px;
+        /* Allow more vertical space on mobile scroll */
+    }
+
+    /* Hide floating background elements to reduce clutter */
+    .s-1,
+    .s-2,
+    .s-5 {
+        opacity: 0.1;
+        transform: scale(0.7);
+    }
+
+    .s-3,
+    .s-4 {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .timer-display {
+        width: 260px;
+        height: 260px;
+    }
+
+    .time-text {
+        font-size: 2.5rem;
+    }
+
+    .main-title {
+        font-size: 1.8rem;
+    }
+}
