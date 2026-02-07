@@ -74,22 +74,26 @@ function updateDisplay() {
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 function playMotivationalSound() {
-    // Original "Success" Sound (Oscillator) - Now for Dhikr
+    // New "Soft & Calm" Dhikr Sound (Water Drop / Soft Bubble)
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-    oscillator.frequency.exponentialRampToValueAtTime(1046.5, audioContext.currentTime + 0.1); // C6
 
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    // Start at a pleasant mid-tone and slightly drop pitch for a "natural" feel
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.15);
+
+    // Soft Attack and Release
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.02); // Lower volume (0.2)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
     oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.5);
+    oscillator.stop(audioContext.currentTime + 0.15);
 }
 
 function playWaterDropSound() {
