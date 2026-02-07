@@ -386,8 +386,8 @@ function handleDhikrClick(item) {
     const badge = item.querySelector('.count-badge');
     let countText = badge.textContent;
 
-    // Play sound
-    playMotivationalSound();
+    // Play sound (DISABLED)
+    // playMotivationalSound();
 
     // Infinity case
     if (countText === '∞') {
@@ -410,7 +410,7 @@ function handleDhikrClick(item) {
         if (count === 0) {
             // Completion effect
             setTimeout(() => {
-                playWaterDropSound(); // Completion sound
+                // playWaterDropSound(); // Completion sound (DISABLED)
                 item.classList.add('completed');
             }, 200);
         }
