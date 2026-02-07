@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SahltahaLak - Study Timer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&family=Outfit:wght@300;500;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="background-glow"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Floating Stickers (Background Decor) -->
+    <div class="floating-stickers">
+        <i class="fas fa-book-open sticker s-1"></i>
+        <i class="fas fa-mug-hot sticker s-2"></i>
+        <i class="fas fa-lightbulb sticker s-3"></i>
+        <i class="fas fa-bolt sticker s-4"></i>
+        <i class="fas fa-graduation-cap sticker s-5"></i>
+    </div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="glass-panel login-card">
+            <div class="login-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h2>جاهز للانطلاق؟ 🚀</h2>
+            <p>اختار شخصيتك ودخل اسمك</p>
+
+            <div class="gender-selection">
+                <div class="gender-option selected" id="opt-boy" onclick="selectGender('boy')">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>بطل</span>
+                </div>
+                <div class="gender-option" id="opt-girl" onclick="selectGender('girl')">
+                    <i class="fas fa-user-astronaut"></i>
+                    <span>بطلة</span>
+                </div>
+            </div>
+
+            <input type="text" id="student-name" placeholder="اكتب اسمك هنا..." autocomplete="off">
+            <button id="login-btn">يلا بينا!</button>
+        </div>
+    </div>
+
+    <div class="container blurred" id="main-container">
+
+        <!-- User Profile Section -->
+        <header class="user-profile glass-panel">
+            <div class="profile-img-container" id="profile-container">
+                <!-- Avatar injected via JS -->
+            </div>
+            <div class="user-info">
+                <h1 id="greeting">أهلاً يا ... 👋</h1>
+                <p>مهمتك بدأت دلوقتي!</p>
+            </div>
+        </header>
+
+        <!-- Main Timer Section -->
+        <main class="timer-section glass-panel">
+            <div class="timer-display">
+                <div class="timer-pulse"></div>
+                <svg class="progress-ring" width="280" height="280">
+                    <circle class="progress-ring__circle-bg" stroke-width="6" fill="transparent" r="120" cx="140"
+                        cy="140" />
+                    <circle class="progress-ring__circle" stroke-width="8" fill="transparent" r="120" cx="140"
+                        cy="140" />
+                </svg>
+                <div class="time-text" id="time-display">25:00</div>
+                <div class="timer-label">Time Focus</div>
+            </div>
+
+            <div class="timer-controls">
+                <button id="start-btn" class="control-btn play-btn" aria-label="Start Timer">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="pause-btn" class="control-btn pause-btn hidden" aria-label="Pause Timer">
+                    <i class="fas fa-pause"></i>
+                </button>
+                <button id="reset-btn" class="control-btn reset-btn" aria-label="Reset Timer">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+            </div>
+        </main>
+
+        <!-- Session Settings -->
+        <section class="settings-section glass-panel">
+            <h2>حدد هدفك</h2>
+            <div class="presets">
+                <button class="preset-btn active" data-time="25">25 د</button>
+                <button class="preset-btn" data-time="45">45 د</button>
+                <button class="preset-btn" data-time="60">60 د</button>
+            </div>
+            <div class="custom-input">
+                <input type="number" id="custom-time" placeholder="دقيقة" min="1" max="180">
+                <button id="set-custom-btn">ظبط</button>
+            </div>
+        </section>
+
+        <footer class="branding glass-panel developer-card">
+            <p class="dev-title">Code By</p>
+            <div class="dev-info">
+                <img src="assets/img/kareem.jpg" alt="Kareem Yousry" class="dev-img">
+                <div class="dev-details">
+                    <h3>Kareem Yousry</h3>
+                    <a href="mailto:kareemyousry78@gmail.com" class="dev-email">kareemyousry78@gmail.com</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
