@@ -2,6 +2,7 @@ const circle = document.querySelector('.progress-ring__circle');
 const radius = circle.r.baseVal.value;
 const circumference = radius * 2 * Math.PI;
 const timeDisplay = document.getElementById('time-display');
+const millisecondsDisplay = document.getElementById('milliseconds');
 const startBtn = document.getElementById('start-btn');
 const pauseBtn = document.getElementById('pause-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -16,13 +17,20 @@ const studentNameInput = document.getElementById('student-name');
 const mainContainer = document.getElementById('main-container');
 const greetingText = document.getElementById('greeting');
 const profileContainer = document.getElementById('profile-container');
-let selectedGender = 'boy'; // Default
+let selectedGender = null; // No Default
 
 // Timer State
 let timerInterval;
 let totalSeconds = 25 * 60;
-let remainingSeconds = totalSeconds;
+let remainingTimeMs = totalSeconds * 1000; // Track in milliseconds
 let isRunning = false;
+
+// Stopwatch State
+let isStopwatch = false;
+let stopwatchMs = 0; // Track in milliseconds
+const modeTimerBtn = document.getElementById('mode-timer');
+const modeStopwatchBtn = document.getElementById('mode-stopwatch');
+const modeLabel = document.getElementById('mode-label');
 
 // Setup Circle
 circle.style.strokeDasharray = `${circumference} ${circumference}`;
@@ -34,35 +42,82 @@ function setProgress(percent) {
 }
 
 function updateDisplay() {
-    const mins = Math.floor(remainingSeconds / 60);
-    const secs = remainingSeconds % 60;
+    let msToDisplay = isStopwatch ? stopwatchMs : remainingTimeMs;
+    // Safety check
+    if (msToDisplay < 0) msToDisplay = 0;
+
+    const mins = Math.floor(msToDisplay / 60000);
+    const secs = Math.floor((msToDisplay % 60000) / 1000);
+    const ms = Math.floor((msToDisplay % 1000) / 10); // Show 2 digits for cleaner circle look
+
+    // Timer Text
     timeDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    millisecondsDisplay.textContent = String(ms).padStart(2, '0');
+
     document.title = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} - SahltahaLak`;
 
-    // Invert progress for countdown effect (full to empty)
-    const percent = (remainingSeconds / totalSeconds) * 100;
-    setProgress(percent);
+    // Circle Progress
+    if (isStopwatch) {
+        // Stopwatch: Fill up every minute (0 -> 100%)
+        const progressMs = msToDisplay % 60000;
+        const percent = (progressMs / 60000) * 100;
+        setProgress(percent);
+    } else {
+        // Timer: empty as it goes down
+        const totalMs = totalSeconds * 1000;
+        const percent = (msToDisplay / totalMs) * 100;
+        setProgress(percent);
+    }
 }
 
-function startTimer() {
-    if (isRunning) return;
-    isRunning = true;
-    startBtn.classList.add('hidden');
-    pauseBtn.classList.remove('hidden');
+// Sound Logic
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-    timerInterval = setInterval(() => {
-        remainingSeconds--;
-        updateDisplay();
-        if (remainingSeconds <= 0) {
-            finishTimer();
-        }
-    }, 1000);
+function playMotivationalSound() {
+    // Original "Success" Sound (Oscillator) - Now for Dhikr
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+    oscillator.frequency.exponentialRampToValueAtTime(1046.5, audioContext.currentTime + 0.1); // C6
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
 }
+
+function playWaterDropSound() {
+    // Original "Dhikr" Sound (MP3) - Now for Timer Completion
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log("Audio play failed", e));
+}
+
+// Modal Logic
+const modal = document.getElementById('completion-modal');
+const closeModalBtn = document.getElementById('close-modal-btn');
+
+function showModal() {
+    modal.classList.add('visible');
+    playWaterDropSound(); // Swapped: Timer End now plays Water Drop
+}
+
+function hideModal() {
+    modal.classList.remove('visible');
+}
+
+closeModalBtn.addEventListener('click', hideModal);
 
 function finishTimer() {
     clearInterval(timerInterval);
     isRunning = false;
-    alert("Focus Session Complete! عاش يا بطل! 🔥");
+    showModal();
     resetTimer();
 }
 
@@ -75,17 +130,23 @@ function pauseTimer() {
 
 function resetTimer() {
     pauseTimer();
-    remainingSeconds = totalSeconds;
-    updateDisplay();
-    setProgress(100);
+    if (isStopwatch) {
+        stopwatchMs = 0;
+        updateDisplay();
+        circle.style.strokeDashoffset = circumference; // Empty
+    } else {
+        remainingTimeMs = totalSeconds * 1000;
+        updateDisplay();
+        setProgress(100);
+    }
 }
 
 function setTime(minutes) {
+    if (isStopwatch) return; // Ignore in stopwatch mode
     pauseTimer();
     totalSeconds = minutes * 60;
-    remainingSeconds = totalSeconds;
+    remainingTimeMs = totalSeconds * 1000;
     updateDisplay();
-    setProgress(100);
 }
 
 // Gender Selection
@@ -100,7 +161,6 @@ function setAvatar() {
     profileContainer.innerHTML = ''; // Clear
     if (selectedGender === 'boy') {
         profileContainer.innerHTML = `<img src="assets/img/boy_avatar.png" class="profile-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4140/4140048.png'">`;
-        // Fallback or use Icon if image fails
         const img = profileContainer.querySelector('img');
         img.onerror = () => {
             profileContainer.innerHTML = `<div class="profile-img avatar-icon-img"><i class="fas fa-user-graduate" style="color: #00f2ff;"></i></div>`;
@@ -114,16 +174,53 @@ function setAvatar() {
     }
 }
 
+// Warning Modal
+function showWarning(message) {
+    const modal = document.getElementById('warning-modal');
+    const text = modal.querySelector('.warning-text');
+    text.textContent = message;
+    modal.classList.add('visible');
+
+    // Sound effect for warning
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 0.1);
+
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+window.hideWarning = function () {
+    document.getElementById('warning-modal').classList.remove('visible');
+    document.getElementById('student-name').focus();
+}
+
 function login() {
     const name = studentNameInput.value.trim();
-    if (name) {
-        greetingText.textContent = `أهلاً يا ${name} 👋`;
-        setAvatar();
-        loginOverlay.classList.add('hidden');
-        mainContainer.classList.remove('blurred');
-    } else {
-        alert("اكتب اسمك الأول 😉");
+
+    if (!selectedGender) {
+        showWarning("يا بطل! اختار شخصيتك الأول (بطل ولا بطلة؟) 🤔");
+        return;
     }
+
+    if (!name) {
+        showWarning("يا بطل! لازم تكتب اسمك الأول 😉");
+        return;
+    }
+
+    greetingText.textContent = `أهلاً يا ${name} 👋`;
+    setAvatar();
+    loginOverlay.classList.add('hidden');
+    mainContainer.classList.remove('blurred');
 }
 
 // Particle System
@@ -147,8 +244,109 @@ function createParticles() {
     }
 }
 
+// Dhikr Logic
+const dhikrList = [
+    "سبحان الله",
+    "الحمد لله",
+    "لا إله إلا الله",
+    "الله أكبر",
+    "سبحان الله وبحمده",
+    "سبحان الله العظيم",
+    "أستغفر الله",
+    "لا حول ولا قوة إلا بالله",
+    "اللهم صل وسلم على نبينا محمد"
+];
+
+function showDhikr() {
+    const toast = document.createElement('div');
+    toast.className = 'dhikr-toast';
+    const randomDhikr = dhikrList[Math.floor(Math.random() * dhikrList.length)];
+
+    toast.innerHTML = `
+        <i class="fas fa-moon"></i>
+        <div class="dhikr-content">
+            <h4>ذكر</h4>
+            <p>${randomDhikr}</p>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    playMotivationalSound(); // Swapped: Dhikr now plays Motivational Sound
+
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 5000);
+}
+
+// Mode Switching
+function switchMode(mode) {
+    isStopwatch = (mode === 'stopwatch');
+
+    if (isStopwatch) {
+        modeStopwatchBtn.classList.add('active');
+        modeTimerBtn.classList.remove('active');
+        modeLabel.textContent = "Stopwatch";
+        resetTimer();
+    } else {
+        modeTimerBtn.classList.add('active');
+        modeStopwatchBtn.classList.remove('active');
+        modeLabel.textContent = "Timer Focus";
+        resetTimer();
+    }
+}
+
+modeTimerBtn.addEventListener('click', () => switchMode('timer'));
+modeStopwatchBtn.addEventListener('click', () => switchMode('stopwatch'));
+
 // Events
-startBtn.addEventListener('click', startTimer);
+startBtn.addEventListener('click', () => {
+    if (isRunning) return;
+    isRunning = true;
+    startBtn.classList.add('hidden');
+    pauseBtn.classList.remove('hidden');
+
+    const TICK_RATE = 10;
+    let lastTime = Date.now();
+
+    timerInterval = setInterval(() => {
+        const now = Date.now();
+        const delta = now - lastTime;
+        lastTime = now;
+
+        if (isStopwatch) {
+            stopwatchMs += delta;
+            updateDisplay();
+
+            // Pulse/Dhikr every minute (60 * 1000 ms)
+            // Just check if we crossed a minute boundary roughly. 
+            // Simple check: floor(ms/60000) > floor((ms-delta)/60000)
+            if (Math.floor(stopwatchMs / 60000) > Math.floor((stopwatchMs - delta) / 60000)) {
+                showDhikr();
+            }
+
+        } else {
+            remainingTimeMs -= delta;
+            updateDisplay();
+
+            // Dhikr every minute
+            // Check if we crossed a minute boundary downwards
+            if (Math.floor(remainingTimeMs / 60000) < Math.floor((remainingTimeMs + delta) / 60000) && remainingTimeMs > 1000) {
+                showDhikr();
+            }
+
+            if (remainingTimeMs <= 0) {
+                remainingTimeMs = 0;
+                updateDisplay();
+                finishTimer();
+            }
+        }
+    }, TICK_RATE);
+});
+
 pauseBtn.addEventListener('click', pauseTimer);
 resetBtn.addEventListener('click', resetTimer);
 
@@ -174,3 +372,20 @@ studentNameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') lo
 // Init
 updateDisplay();
 createParticles();
+
+// Dhikr List Interactivity
+const dhikrItems = document.querySelectorAll('.dhikr-item');
+dhikrItems.forEach(item => {
+    item.addEventListener('click', () => {
+        // Visual feedback
+        item.style.transform = 'scale(0.98)';
+        setTimeout(() => item.style.transform = 'translateX(-5px)', 100); // Return to hover state
+
+        // Play sound
+        playMotivationalSound();
+
+        // Optional: Confetti or glow effect on click
+        item.style.boxShadow = '0 0 15px var(--primary-neon)';
+        setTimeout(() => item.style.boxShadow = 'none', 300);
+    });
+});

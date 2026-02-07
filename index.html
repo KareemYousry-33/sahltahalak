@@ -30,15 +30,13 @@
 
     <!-- Login Overlay -->
     <div id="login-overlay" class="login-overlay">
-        <div class="glass-panel login-card">
-            <div class="login-icon">
-                <i class="fas fa-rocket"></i>
-            </div>
-            <h2>جاهز للانطلاق؟ 🚀</h2>
-            <p>اختار شخصيتك ودخل اسمك</p>
+        <div class="login-card glass-panel">
+            <div class="login-icon">🚀</div>
+            <h2>جاهز للانطلاق؟</h2>
+            <p style="color: var(--text-muted);">اختار شخصيتك ودخل اسمك</p>
 
             <div class="gender-selection">
-                <div class="gender-option selected" id="opt-boy" onclick="selectGender('boy')">
+                <div class="gender-option" id="opt-boy" onclick="selectGender('boy')">
                     <i class="fas fa-user-graduate"></i>
                     <span>بطل</span>
                 </div>
@@ -49,8 +47,15 @@
             </div>
 
             <input type="text" id="student-name" placeholder="اكتب اسمك هنا..." autocomplete="off">
-            <button id="login-btn">يلا بينا!</button>
+            <button id="login-btn" class="cta-btn">يلا بينا!</button>
         </div>
+    </div>
+
+    <!-- Custom Warning Modal -->
+    <div id="warning-modal" class="warning-modal">
+        <i class="fas fa-exclamation-circle warning-icon"></i>
+        <h3 class="warning-text">ادخل اسمك يا بطل! 😉</h3>
+        <button class="warning-btn" onclick="hideWarning()">حاضر</button>
     </div>
 
     <div class="container blurred" id="main-container">
@@ -67,57 +72,109 @@
         </header>
 
         <!-- Main Timer Section -->
-        <main class="timer-section glass-panel">
+        <!-- Timer Section -->
+        <main class="timer-section">
             <div class="timer-display">
-                <div class="timer-pulse"></div>
-                <svg class="progress-ring" width="280" height="280">
-                    <circle class="progress-ring__circle-bg" stroke-width="6" fill="transparent" r="120" cx="140"
-                        cy="140" />
-                    <circle class="progress-ring__circle" stroke-width="8" fill="transparent" r="120" cx="140"
-                        cy="140" />
+                <div class="timer-glow-effect"></div>
+                <svg class="progress-ring" width="300" height="300">
+                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="12"
+                        fill="transparent" r="130" cx="150" cy="150" />
+                    <circle class="progress-ring__circle" stroke="#4facfe" stroke-width="12" fill="transparent" r="130"
+                        cx="150" cy="150" />
                 </svg>
-                <div class="time-text" id="time-display">25:00</div>
-                <div class="timer-label">Time Focus</div>
+
+                <div class="time-container">
+                    <div class="time-text" id="time-display">00:00</div>
+                    <div class="milliseconds-circle" id="milliseconds">00</div>
+                </div>
             </div>
 
             <div class="timer-controls">
-                <button id="start-btn" class="control-btn play-btn" aria-label="Start Timer">
-                    <i class="fas fa-play"></i>
-                </button>
-                <button id="pause-btn" class="control-btn pause-btn hidden" aria-label="Pause Timer">
-                    <i class="fas fa-pause"></i>
-                </button>
-                <button id="reset-btn" class="control-btn reset-btn" aria-label="Reset Timer">
-                    <i class="fas fa-rotate-right"></i>
-                </button>
+                <button class="control-btn play-btn" id="start-btn"><i class="fas fa-play"></i></button>
+                <button class="control-btn pause-btn hidden" id="pause-btn"><i class="fas fa-pause"></i></button>
+                <button class="control-btn reset-btn" id="reset-btn"><i class="fas fa-redo"></i></button>
+            </div>
+
+            <div class="mode-toggle-container">
+                <button class="mode-btn active" id="mode-timer">Timer Focus</button>
+                <button class="mode-btn" id="mode-stopwatch">Stopwatch</button>
+            </div>
+            <p id="mode-label" class="timer-label">Timer Focus</p>
+
+            <!-- Settings -->
+            <div class="settings-section">
+                <h2>مدة التركيز</h2>
+                <div class="presets">
+                    <button class="preset-btn active" data-time="25">25 د</button>
+                    <button class="preset-btn" data-time="45">45 د</button>
+                    <button class="preset-btn" data-time="60">60 د</button>
+                    <button class="preset-btn" data-time="90">90 د</button>
+                </div>
+                <div class="custom-input">
+                    <input type="number" id="custom-time" placeholder="دقيقة" min="1" max="180">
+                    <button id="set-custom-btn">تم</button>
+                </div>
             </div>
         </main>
 
-        <!-- Session Settings -->
-        <section class="settings-section glass-panel">
-            <h2>حدد هدفك</h2>
-            <div class="presets">
-                <button class="preset-btn active" data-time="25">25 د</button>
-                <button class="preset-btn" data-time="45">45 د</button>
-                <button class="preset-btn" data-time="60">60 د</button>
-            </div>
-            <div class="custom-input">
-                <input type="number" id="custom-time" placeholder="دقيقة" min="1" max="180">
-                <button id="set-custom-btn">ظبط</button>
+        <!-- Dhikr List Section -->
+        <section class="dhikr-list-section glass-panel">
+            <h2>📿 أذكار مختارة</h2>
+            <div class="dhikr-container custom-scrollbar">
+                <div class="dhikr-item">
+                    <p>سبحان الله وبحمده</p>
+                    <span class="count-badge">100</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>أستغفر الله العظيم وأتوب إليه</p>
+                    <span class="count-badge">100</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>اللهم صل وسلم على نبينا محمد</p>
+                    <span class="count-badge">10</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>لا حول ولا قوة إلا بالله</p>
+                    <span class="count-badge">∞</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>سبحان الله العظيم</p>
+                    <span class="count-badge">100</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>لا إله إلا الله وحده لا شريك له</p>
+                    <span class="count-badge">100</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>اللهم أنت ربي لا إله إلا أنت</p>
+                    <span class="count-badge">1</span>
+                </div>
+                <div class="dhikr-item">
+                    <p>رضيت بالله ربا وبالإسلام دينا</p>
+                    <span class="count-badge">3</span>
+                </div>
             </div>
         </section>
 
         <footer class="branding glass-panel developer-card">
-            <p class="dev-title">Code By</p>
-            <div class="dev-info">
+            <div class="dev-profile">
                 <img src="assets/img/kareem.jpg" alt="Kareem Yousry" class="dev-img">
-                <div class="dev-details">
-                    <h3>Kareem Yousry</h3>
-                    <a href="mailto:kareemyousry78@gmail.com" class="dev-email">kareemyousry78@gmail.com</a>
+                <div class="dev-info">
+                    <span class="dev-name">Kareem Yousry</span>
+                    <span class="dev-title">Vibe Engineer</span>
                 </div>
             </div>
         </footer>
 
+    </div>
+
+    <!-- Completion Modal -->
+    <div id="completion-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎉 عاش يا بطل! 🎉</h2>
+            <p>خلصت الجلسة دي بنجاح! خد بريك صغير وكمل عشان حلمك يستاهل. 💪</p>
+            <button id="close-modal-btn">تمام، كمل!</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
