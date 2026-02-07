@@ -374,18 +374,91 @@ updateDisplay();
 createParticles();
 
 // Dhikr List Interactivity
+// Dhikr List Interactivity
 const dhikrItems = document.querySelectorAll('.dhikr-item');
-dhikrItems.forEach(item => {
-    item.addEventListener('click', () => {
-        // Visual feedback
+const resetDhikrBtn = document.getElementById('reset-dhikr-btn');
+
+function handleDhikrClick(item) {
+    const badge = item.querySelector('.count-badge');
+    let countText = badge.textContent;
+
+    // Play sound
+    playMotivationalSound();
+
+    // Infinity case
+    if (countText === '∞') {
+        // Visual feedback only
         item.style.transform = 'scale(0.98)';
-        setTimeout(() => item.style.transform = 'translateX(-5px)', 100); // Return to hover state
+        setTimeout(() => item.style.transform = 'translateX(0)', 100);
+        return;
+    }
 
-        // Play sound
-        playMotivationalSound();
+    let count = parseInt(countText);
 
-        // Optional: Confetti or glow effect on click
-        item.style.boxShadow = '0 0 15px var(--primary-neon)';
-        setTimeout(() => item.style.boxShadow = 'none', 300);
-    });
+    if (count > 0) {
+        count--;
+        badge.textContent = count;
+
+        // Visual feedback
+        item.style.transform = 'scale(0.95)';
+        setTimeout(() => item.style.transform = 'translateX(0)', 100);
+
+        if (count === 0) {
+            // Completion effect
+            setTimeout(() => {
+                playWaterDropSound(); // Completion sound
+                item.classList.add('completed');
+            }, 200);
+        }
+    }
+}
+
+dhikrItems.forEach(item => {
+    item.addEventListener('click', () => handleDhikrClick(item));
 });
+
+// Reset Dhikr Logic
+if (resetDhikrBtn) {
+    resetDhikrBtn.addEventListener('click', () => {
+        dhikrItems.forEach(item => {
+            const badge = item.querySelector('.count-badge');
+            const originalCount = badge.getAttribute('data-original-count');
+
+            // Generate a random delay for a staggered effect
+            const delay = Math.random() * 300;
+
+            // Remove cancelled state
+            setTimeout(() => {
+                item.classList.remove('completed');
+                badge.textContent = originalCount;
+
+                // Pop effect
+                item.animate([
+                    { transform: 'scale(0.5)', opacity: 0 },
+                    { transform: 'scale(1.1)', opacity: 1 },
+                    { transform: 'scale(1)', opacity: 1 }
+                ], {
+                    duration: 400,
+                    easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                });
+            }, delay);
+        });
+
+        // Play a "refresh" sound
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.3);
+
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.3);
+    });
+}
